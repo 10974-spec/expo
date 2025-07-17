@@ -2,11 +2,13 @@
 
 import express from "express";
 import dotenv from "dotenv";
-import { sql } from "./config/db";
+import { sql } from "./config/db.js";
 
 dotenv.config();
 
 const app = express()
+
+app.use(express.json());
 
 const PORT = process.env.PORT || 5001;
 
@@ -20,15 +22,39 @@ async function  initDB() {
             category VARCHAR(255) NOT NULL,
             created_at DATE NOT NULL DEFAULT CURRENT_DATE
         )`
-    }catch(error){
 
+        console.log("Database initialized successfully")
+    }catch(error){
+        console.log("Error initializing into the DB", error);
+        process.exit(1);
     }
 }
 
-app.get("/", (req, res) => {
-    res.send("hello world")
-});
+app.post("/api/transactions", async (req,res) => {
+    try{
 
-app.listen(PORT, () => {
-    console.log("server is up and running on PORT",PORT);
+        const {user_id, title, amount, category} = req.body;
+
+        if(!title|| !user_id || !amount === undefined || !category){
+            return res.status(400).json({message: "Missing required fields"});
+        }
+
+       const transaction = await sql`
+            INSERT INTO transactions(user_id, title, amount, category)
+            VALUES(${user_id}, ${title}, ${amount}, ${category})
+            RETURNING *
+        `
+        console.log(transaction);
+        
+        res.status(201).json(transaction[0])
+    }catch(error){
+      console.log("error creting the transaction",error)
+      res.status(500).json({message: "Internal server error"})
+    }
+})
+
+initDB().then(() => {
+    app.listen(PORT, () => {
+        console.log("server is up and running on PORT",PORT);
+    })
 })
