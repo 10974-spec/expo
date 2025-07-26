@@ -23,6 +23,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
+    marginRight:10,
   },
   headerLogo: {
     width: 75,
@@ -78,6 +79,7 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 1,
+    marginLeft: 12,
   },
   balanceCard: {
     backgroundColor: COLORS.card,
